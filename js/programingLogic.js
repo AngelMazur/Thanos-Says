@@ -1,192 +1,230 @@
-//Buttons 
-const sRed = document.getElementById("sRed");
-const sGreen = document.getElementById("sGreen");
-const sOrange = document.getElementById("sOrange");
-const sPurple = document.getElementById("sPurple");
-const sYellow = document.getElementById("sYellow");
-const sBlue = document.getElementById("sBlue");
-const btnPlay = document.getElementById("btnPlay");
+//Scene
+const gameboardEl = document.getElementById('gameboard')
+//Buttons
+const STONES = {
+  sRed: document.getElementById('sRed'),
+  sGreen: document.getElementById('sGreen'),
+  sOrange: document.getElementById('sOrange'),
+  sPurple: document.getElementById('sPurple'),
+  sYellow: document.getElementById('sYellow'),
+  sBlue: document.getElementById('sBlue'),
+}
 //Sounds
-const sound_do = document.getElementById('sound_do')
-const sound_re = document.getElementById('sound_re')
-const sound_mi = document.getElementById('sound_mi')
-const sound_fa = document.getElementById('sound_fa')
-const sound_sol = document.getElementById('sound_sol')
-const sound_la = document.getElementById('sound_la')
-const finalLevel = 10;
+const SOUNDS = {
+  sound_do: document.getElementById('sound_do'),
+  sound_re: document.getElementById('sound_re'),
+  sound_mi: document.getElementById('sound_mi'),
+  sound_fa: document.getElementById('sound_fa'),
+  sound_sol: document.getElementById('sound_sol'),
+  sound_la: document.getElementById('sound_la'),
+}
+//Important
+const FINAL_LEVEL = 5
+const btnPlay = document.getElementById('btnPlay')
+const TIME_PLAY = 500
+const NEXT_LEVEL_PLAY = 800
 //Builder
 class Game {
-  constructor() {
-    this.start = this.start.bind(this);
-    this.start();
-    this.generateSequence();
-    setTimeout(this.nextLevel, 500);
+  constructor({ timePlay = TIME_PLAY, nextLevelPlay = NEXT_LEVEL_PLAY } = {}) {
+    this.stones = { ...STONES }
+    this.sounds = { ...SOUNDS }
+    this.timePlay = timePlay
+    this.nextLevelPlay = nextLevelPlay
+    this.level = 1
+    this.turnOn = false
+    this.addedEventsClick()
   }
-//Start the sequence
+
+  //Start the sequence
   start() {
-    this.nextLevel = this.nextLevel.bind(this);
-    this.chooseColor = this.chooseColor.bind(this);
-    this.toggleBtnGo();
-    this.level = 1;
-    this.stones = {
-      sRed,
-      sGreen,
-      sOrange,
-      sPurple,
-      sYellow,
-      sBlue
-    };
-    this.sounds={
-      sound_do,
-        sound_re,
-        sound_mi,
-        sound_fa,
-        sound_sol,
-        sound_la
-    }
+    console.log('---------init: new Game')
+    this.level = 1
+    btnPlay.classList.add('hide')
+    this.generateSequence()
+    this.on()
+    setTimeout(() => this.nextLevel(), this.timePlay)
   }
-// Turn on and off
-  toggleBtnGo() {
-    if (btnPlay.classList.contains("hide")) {
-      btnPlay.classList.remove("hide");
-    } else {
-      btnPlay.classList.add("hide");
-    }
+  // reset
+  reset() {
+    btnPlay.classList.remove('hide')
+    console.log('---------reset')
   }
+
   //Generate random sequence
   generateSequence() {
-    this.sequence = new Array(finalLevel)
+    this.sequence = new Array(FINAL_LEVEL)
       .fill(0)
-      .map(n => Math.floor(Math.random() * 6));
+      .map((n) => Math.floor(Math.random() * 6))
   }
 
   nextLevel() {
-    this.sublevel = 0;
-    this.illuminateSequence();
-    this.addedEventsClic();
+    this.illuminateSequence()
+    this.sublevel = 0
   }
- 
+  //Generate cursor
+  on(state = true) {
+    this.turnOn = state
+    for (const color in this.stones) {
+      if (state) {
+        this.stones[color].style.cursor = 'not-allowed'
+      } else {
+        this.stones[color].style.cursor = ''
+      }
+    }
+  }
+
   trasformNumberToColor(number) {
     switch (number) {
       case 0:
-        return "sRed";
+        return 'sRed'
       case 1:
-        return "sGreen";
+        return 'sGreen'
       case 2:
-        return "sOrange";
+        return 'sOrange'
       case 3:
-        return "sPurple";
+        return 'sPurple'
       case 4:
-        return "sYellow";
+        return 'sYellow'
       case 5:
-        return "sBlue";
+        return 'sBlue'
     }
   }
 
   trasformColorToNumber(color) {
     switch (color) {
-      case "sRed":
-        return 0;
-      case "sGreen":
-        return 1;
-      case "sOrange":
-        return 2;
-      case "sPurple":
-        return 3;
-      case "sYellow":
-        return 4;
-      case "sBlue":
-        return 5;
+      case 'sRed':
+        return 0
+      case 'sGreen':
+        return 1
+      case 'sOrange':
+        return 2
+      case 'sPurple':
+        return 3
+      case 'sYellow':
+        return 4
+      case 'sBlue':
+        return 5
     }
   }
 
-  playSound(color){
-    switch(color){
-        case 'sRed':
+  playSound(color) {
+    switch (color) {
+      case 'sRed':
         this.sounds.sound_do.play()
-        break;
-        case 'sGreen':
+        break
+      case 'sGreen':
         this.sounds.sound_re.play()
-        break;
-        case 'sOrange':
+        break
+      case 'sOrange':
         this.sounds.sound_sol.play()
-        break;
-        case 'sPurple':
+        break
+      case 'sPurple':
         this.sounds.sound_fa.play()
-        break;
-        case 'sYellow':
+        break
+      case 'sYellow':
         this.sounds.sound_mi.play()
-        break;
-        case 'sBlue':
+        break
+      case 'sBlue':
         this.sounds.sound_la.play()
-        break;
+        break
     }
-}
+  }
   illuminateSequence() {
     for (let i = 0; i < this.level; i++) {
-      const color = this.trasformNumberToColor(this.sequence[i]);
-      setTimeout(() => this.playSound(color), 1000 * i);
-      setTimeout(() => this.illuminateColor(color), 1000 * i);
+      let color = this.trasformNumberToColor(this.sequence[i])
+
+      setTimeout(() => {
+        this.playSound(color)
+        if (i === this.level - 1) {
+          setTimeout(() => {
+            this.on(false)
+          }, this.timePlay)
+        }
+      }, this.timePlay * i)
+      console.log(color)
+
+      setTimeout(() => {
+        this.illuminateColor(color)
+        if (i === this.level - 1) {
+          setTimeout(() => {
+            this.on(false)
+          }, this.timePlay)
+        }
+      }, this.timePlay * i)
     }
   }
+
   illuminateColor(color) {
-    this.stones[color].classList.add("light");
-    setTimeout(() => this.offColor(color), 350);
+    this.stones[color].classList.add('light')
+    setTimeout(() => this.offColor(color), this.timePlay)
+    console.log(`${color}light`)
   }
   offColor(color) {
-    this.stones[color].classList.remove("light");
+    this.stones[color].classList.remove('light')
   }
-  addedEventsClic() {
-    this.stones.sRed.addEventListener("click", this.chooseColor);
-    this.stones.sGreen.addEventListener("click", this.chooseColor);
-    this.stones.sOrange.addEventListener("click", this.chooseColor);
-    this.stones.sPurple.addEventListener("click", this.chooseColor);
-    this.stones.sYellow.addEventListener("click", this.chooseColor);
-    this.stones.sBlue.addEventListener("click", this.chooseColor);
+
+  addedEventsClick() {
+    gameboard.addEventListener(
+      'click',
+      (event) => {
+        if (this.turnOn) {
+          event.stopPropagation()
+        }
+      },
+      true
+    )
+    for (const color in this.stones) {
+      this.stones[color].addEventListener('click', (event) =>
+        this.chooseColor(event)
+      )
+    }
   }
-  removeEventosClick() {
-    this.stones.sRed.removeEventListener("click", this.chooseColor);
-    this.stones.sGreen.removeEventListener("click", this.chooseColor);
-    this.stones.sOrange.removeEventListener("click", this.chooseColor);
-    this.stones.sPurple.removeEventListener("click", this.chooseColor);
-    this.stones.sYellow.removeEventListener("click", this.chooseColor);
-    this.stones.sBlue.removeEventListener("click", this.chooseColor);
+  removeEventsClick() {
+    for (const color in this.stones) {
+      this.stones[color].removeEventListener('click', (event) =>
+        this.chooseColor(event)
+      )
+    }
   }
 
   chooseColor(ev) {
-    const nameColor = ev.target.dataset.color;
-    const numberColor = this.trasformColorToNumber(nameColor);
-    this.illuminateColor(nameColor);
-    this.playSound(nameColor);
+    const nameColor = ev.target.dataset.color
+    const numberColor = this.trasformColorToNumber(nameColor)
+    this.illuminateColor(nameColor)
+    this.playSound(nameColor)
 
     if (numberColor === this.sequence[this.sublevel]) {
-      this.sublevel++;
+      this.sublevel++
       if (this.sublevel === this.level) {
-        this.level++;
-        this.removeEventosClick();
-        if (this.level === finalLevel + 1) {
-          this.wingame();
+        this.level++
+        this.removeEventsClick()
+        if (this.level === FINAL_LEVEL + 1) {
+          this.wingame()
         } else {
-          setTimeout(this.nextLevel, 1500);
+          this.on()
+          setTimeout(() => this.nextLevel(), this.nextLevelPlay)
         }
       }
     } else {
-      this.gameOver();
+      this.gameOver()
     }
   }
   wingame() {
-    swal("I am Iron Man", "You win", "success").then(() => {
-      this.start();
-    });
+    swal('Eres una maquina😎', 'HAS GANADO', 'success').then(() => {
+      this.reset()
+    })
   }
   gameOver() {
-    swal("I am inevitable", "GAME OVER", "error").then(() => {
-      this.removeEventosClick();
-      this.start();
-    });
+    swal(
+      'Eres un mortal cualquiera🤷‍♂️',
+      `HAS PERDIDO EN EL NIVEL ${this.level}`,
+      'error'
+    ).then(() => {
+      this.reset()
+    })
   }
 }
-
+let game = new Game()
 function playGame() {
-  window.game = new Game();
+  game.start()
 }
