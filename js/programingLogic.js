@@ -21,8 +21,8 @@ const SOUNDS = {
 //Important
 const FINAL_LEVEL = 5
 const btnPlay = document.getElementById('btnPlay')
-const TIME_PLAY = 500
-const NEXT_LEVEL_PLAY = 800
+const TIME_PLAY = 1000
+const NEXT_LEVEL_PLAY = 1000
 //Builder
 class Game {
   constructor({ timePlay = TIME_PLAY, nextLevelPlay = NEXT_LEVEL_PLAY } = {}) {
@@ -129,21 +129,13 @@ class Game {
         break
     }
   }
+
   illuminateSequence() {
     for (let i = 0; i < this.level; i++) {
       let color = this.trasformNumberToColor(this.sequence[i])
 
       setTimeout(() => {
         this.playSound(color)
-        if (i === this.level - 1) {
-          setTimeout(() => {
-            this.on(false)
-          }, this.timePlay)
-        }
-      }, this.timePlay * i)
-      console.log(color)
-
-      setTimeout(() => {
         this.illuminateColor(color)
         if (i === this.level - 1) {
           setTimeout(() => {
@@ -151,13 +143,14 @@ class Game {
           }, this.timePlay)
         }
       }, this.timePlay * i)
+
+      console.log(color)
     }
   }
 
   illuminateColor(color) {
     this.stones[color].classList.add('light')
-    setTimeout(() => this.offColor(color), this.timePlay)
-    console.log(`${color}light`)
+    setTimeout(() => this.offColor(color), this.timePlay/2)
   }
   offColor(color) {
     this.stones[color].classList.remove('light')
